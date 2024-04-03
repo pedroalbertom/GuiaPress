@@ -85,6 +85,33 @@ router.post("/users/update", (req, res) => {
     })
 })
 
+router.get("/login/admin", (req, res) => {
+    res.render("admin/users/login")
+})
+router.post("/authenticate/admin", (req, res) => {
+    let email = req.body.email
+    let password = req.body.password
+
+    User.findOne({where: {email: email}}).then(user => {
+        if(user != undefined){
+            // Validar senha
+            let correct = bcrypt.compareSync(password, user.password)
+            if(correct){
+                req.session.user = {
+                    id: user.id,
+                    email: user.email
+                }
+                res.json(req.session.user)
+            }else{
+                res.redirect("/login/admin")
+            }
+        }else{
+            res.redirect("/login/admin")
+        }
+    })
+
+})
+
 router.get("/session/iniciar", (req, res) => {
     req.session.treinamento = "formação node js"
     req.session.ano = 2024
