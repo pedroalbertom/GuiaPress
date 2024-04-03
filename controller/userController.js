@@ -1,5 +1,6 @@
 const router = require("express").Router()
 const User = require("../models/User")
+const bcrypt = require("bcryptjs")
 
 // READ
 router.get("/admin/users", (req, res) => {
@@ -12,20 +13,26 @@ router.get("/admin/users", (req, res) => {
 router.get("/admin/users/create", (req, res) => {
     res.render("admin/users/create")
 })
-
 router.post("/users/create", (req, res) => {
     let email = req.body.email
     let password = req.body.password
-    if (email != undefined) {
-        User.create({
-            email: email,
-            password: password
-        }).then(() => {
-            res.redirect("/admin/users")
-        })
-    } else {
-        res.redirect("/admin/users/new")
-    }
+
+    User.findOne({where: {email: email}}).then( user => {
+        if(user == undefined){
+            let salt = bcrypt.genSaltSync(10)
+            let hash = bcrypt.hashSync(password, salt)
+            User.create({
+                email: email,
+                password: hash
+            }).then(() => {
+                res.redirect("/admin/users")
+            }).catch(() => {
+                res.redirect("/admin/users")
+            })
+        } else {
+            res.redirect("/admin/users/create")
+        }
+    })
 })
 
 // DELETE
@@ -66,12 +73,36 @@ router.post("/users/update", (req, res) => {
     let email = req.body.email
     let password = req.body.password
 
-    User.update({ email: email , password: password }, {
+    let salt = bcrypt.genSaltSync(10)
+    let hash = bcrypt.hashSync(password, salt)
+
+    User.update({ email: email , password: hash }, {
         where: {
             id: id
         }
     }).then(() => {
         res.redirect("/admin/users")
+    })
+})
+
+router.get("/session/iniciar", (req, res) => {
+    req.session.treinamento = "formação node js"
+    req.session.ano = 2024
+    req.session.email = "victor@udemy.com"
+    req.session.user = {
+        username: "victorlima",
+        email: "email@email.com",
+        id: 10
+    }
+    res.send("Sessão gerada!")
+})
+
+router.get("/session/leitura", (req, res) => {
+    res.json({
+        treinamento: req.session.treinamento,
+        ano: req.session.ano,
+        email: req.session.email,
+        user: req.session.user
     })
 })
 

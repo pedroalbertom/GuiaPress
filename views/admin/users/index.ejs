@@ -16,14 +16,14 @@
                 </tr>
             </thead>
             <tbody>
-                <% users.forEach(users => { %>
+                <% users.forEach(user => { %>
                     <tr>
-                        <th><%= users.id %></th>
-                        <th><%= users.email %></th>
+                        <th><%= user.id %></th>
+                        <th><%= user.email %></th>
                         <th>
-                            <a href="/admin/users/edit/<%= users.id %>" class="btn btn-warning">Editar</a>
+                            <a href="/admin/users/edit/<%= user.id %>" class="btn btn-warning">Editar</a>
                             <form method="POST" action="/users/delete" style="display: inline" onsubmit="confirmDelete(event, this)">
-                                <input type="hidden" name="id" value="<%= users.id %>">
+                                <input type="hidden" name="id" value="<%= user.id %>">
                                 <button class="btn btn-danger">Deletar</button>
                             </form>
                         </th>
