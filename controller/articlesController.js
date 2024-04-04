@@ -2,6 +2,7 @@ const router = require("express").Router()
 const Category = require("../models/Category")
 const Article = require("../models/Article")
 const slugify = require("slugify")
+const adminAuths = require("../middlewares/adminAuths")
 
 router.get("/", (req, res) => {
     Article.findAll({
@@ -16,7 +17,7 @@ router.get("/", (req, res) => {
     })
 })
 
-router.get("/admin/articles", (req, res) => {
+router.get("/admin/articles", adminAuths,(req, res) => {
     Article.findAll({
         include: [{ model: Category }]
     }).then((articles) => {
@@ -24,7 +25,7 @@ router.get("/admin/articles", (req, res) => {
     })
 })
 
-router.get("/admin/articles/new", (req, res) => {
+router.get("/admin/articles/new", adminAuths,(req, res) => {
     Category.findAll().then(categories => {
         res.render("admin/articles/new", { categories: categories })
     })
@@ -60,7 +61,7 @@ router.post("/articles/delete", (req, res) => {
     }
 })
 
-router.get("/admin/articles/edit/:id", (req, res) => {
+router.get("/admin/articles/edit/:id", adminAuths,(req, res) => {
     let id = req.params.id
     if (isNaN(id)) {
         res.redirect("/admin/articles")
@@ -95,7 +96,7 @@ router.post("/articles/update", (req, res) => {
     })
 })
 
-router.get("/:slug", (req, res) => {
+router.get("/article/:slug", (req, res) => {
     let slug = req.params.slug
     Article.findOne({where:{slug: slug}}).then(article => {
         if (article != undefined) {

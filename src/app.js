@@ -11,7 +11,7 @@ app.set("view engine", "ejs")
 // Sessions
 app.use(session({
     secret:"segredo", 
-    cookie: {maxAge: 30000},
+    cookie: {maxAge: 6000000},
     resave: true,
     saveUninitialized: true
 }));

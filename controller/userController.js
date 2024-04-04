@@ -1,16 +1,17 @@
 const router = require("express").Router()
 const User = require("../models/User")
 const bcrypt = require("bcryptjs")
+const adminAuths = require("../middlewares/adminAuths")
 
 // READ
-router.get("/admin/users", (req, res) => {
+router.get("/admin/users", adminAuths,(req, res) => {
     User.findAll().then(users => {
         res.render("admin/users/index", { users: users })
     })
 })
 
 // CREATE
-router.get("/admin/users/create", (req, res) => {
+router.get("/admin/users/create", adminAuths,(req, res) => {
     res.render("admin/users/create")
 })
 router.post("/users/create", (req, res) => {
@@ -52,7 +53,7 @@ router.post("/users/delete", (req, res) => {
 })
 
 // UPDATE
-router.get("/admin/users/edit/:id", (req, res) => {
+router.get("/admin/users/edit/:id", adminAuths,(req, res) => {
     let id = req.params.id
     if (isNaN(id)) {
         res.redirect("/admin/users")
@@ -85,10 +86,10 @@ router.post("/users/update", (req, res) => {
     })
 })
 
-router.get("/login/admin", (req, res) => {
+router.get("/login", (req, res) => {
     res.render("admin/users/login")
 })
-router.post("/authenticate/admin", (req, res) => {
+router.post("/authenticate", (req, res) => {
     let email = req.body.email
     let password = req.body.password
 
@@ -101,36 +102,19 @@ router.post("/authenticate/admin", (req, res) => {
                     id: user.id,
                     email: user.email
                 }
-                res.json(req.session.user)
+                res.redirect("/admin/categories")
             }else{
-                res.redirect("/login/admin")
+                res.redirect("/login")
             }
         }else{
-            res.redirect("/login/admin")
+            res.redirect("/login")
         }
     })
-
 })
 
-router.get("/session/iniciar", (req, res) => {
-    req.session.treinamento = "formação node js"
-    req.session.ano = 2024
-    req.session.email = "victor@udemy.com"
-    req.session.user = {
-        username: "victorlima",
-        email: "email@email.com",
-        id: 10
-    }
-    res.send("Sessão gerada!")
-})
-
-router.get("/session/leitura", (req, res) => {
-    res.json({
-        treinamento: req.session.treinamento,
-        ano: req.session.ano,
-        email: req.session.email,
-        user: req.session.user
-    })
+router.get("/logout", (req, res) => {
+    req.session.user = undefined
+    res.redirect("/")
 })
 
 module.exports = router
